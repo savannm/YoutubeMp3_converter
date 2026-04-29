@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
 # Install yt-dlp with the necessary impersonation dependencies
 RUN pip install "yt-dlp[default,curl-cffi]" --break-system-packages
 
+RUN pip install yt-dlp-get-oauth2
+
 
 # Create app directory
 WORKDIR /app
