@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaFlow | YouTube to MP3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF3B30;
+            --primary-hover: #D70015;
+            --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+            --text-muted: #a0a0c0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--bg-gradient);
+            margin: 0;
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .background-blobs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .blob {
+            position: absolute;
+            background: var(--primary);
+            filter: blur(80px);
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: move 20s infinite alternate ease-in-out;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            width: 300px;
+            height: 300px;
+            bottom: -50px;
+            right: -50px;
+            animation-delay: -5s;
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(0, 0);
+            }
+
+            to {
+                transform: translate(100px, 100px);
+            }
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, #a0a0c0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 18px 24px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.1);
+        }
+
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(255, 59, 48, 0.3);
+            font-family: inherit;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(255, 59, 48, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #status {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            height: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="card">
+        <h1>Youtube to MP3 Converter</h1>
+        <p>Premium YouTube to MP3 Conversion</p>
+
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Paste YouTube link here..." autocomplete="off">
+        </div>
+
+        <button id="convertBtn" onclick="downloadAudio()">
+            <span id="btnText">Convert & Download</span>
+        </button>
+
+        <div id="status">
+            <span class="loading-spinner" id="spinner"></span>
+            <span id="statusText">Ready to convert</span>
+        </div>
+    </div>
+
+    <script>
+        function downloadAudio() {
+            const url = document.getElementById('urlInput').value;
+            const statusText = document.getElementById('statusText');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.getElementById('btnText');
+            const convertBtn = document.getElementById('convertBtn');
+
+            if (!url) {
+                alert("Please paste a YouTube URL!");
+                return;
+            }
+
+            // Update UI to loading state
+            statusText.innerText = "Processing your request...";
+            spinner.style.display = "inline-block";
+            btnText.innerText = "Processing...";
+            convertBtn.disabled = true;
+            convertBtn.style.opacity = "0.7";
+            convertBtn.style.cursor = "not-allowed";
+
+            // Trigger download
+            window.location.href = `/download?url=${encodeURIComponent(url)}`;
+
+            // Reset UI after delay (browser doesn't notify when download starts)
+            setTimeout(() => {
+                statusText.innerText = "Download started! Check your folder.";
+                spinner.style.display = "none";
+                btnText.innerText = "Convert Another";
+                convertBtn.disabled = false;
+                convertBtn.style.opacity = "1";
+                convertBtn.style.cursor = "pointer";
+            }, 4000);
+        }
+    </script>
+</body>
+
+</html>
