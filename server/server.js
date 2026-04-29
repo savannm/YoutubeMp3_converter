@@ -26,7 +26,7 @@ app.get('/download', (req, res) => {
         '-x',
         '--audio-format', 'mp3',
         '--audio-quality', '9',
-        '-o', '-', // The '-' tells yt-dlp to output to stdout
+        '-o', 'path.join('/tmp', `${videoTitle}.mp3`)', // The '-' tells yt-dlp to output to stdout
         videoURL
     ]);
 
