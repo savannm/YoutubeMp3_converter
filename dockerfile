@@ -1,4 +1,4 @@
-I'm# Use Node.js base image
+# Use Node.js base image
 FROM node:18
 
 # Install yt-dlp and ffmpeg
