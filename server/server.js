@@ -21,12 +21,12 @@ app.get('/download', (req, res) => {
     // Set headers so the browser treats it as a file download
     res.header('Content-Disposition', 'attachment; filename="audio.mp3"');
 
-    // Run yt-dlp and pipe the output directly to the browser response
+    // Update the spawn command to stream to stdout
     const process = spawn('yt-dlp', [
         '-x',
         '--audio-format', 'mp3',
         '--audio-quality', '9',
-        '-o', './music/%(title)s.%(ext)s', // Output
+        '-o', '-', // The '-' tells yt-dlp to output to stdout
         videoURL
     ]);
 
@@ -37,4 +37,6 @@ app.get('/download', (req, res) => {
     });
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+// Change line 40 in server/server.js
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
