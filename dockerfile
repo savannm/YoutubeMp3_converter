@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     && pip3 install yt-dlp --break-system-packages
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /client
 
 # Copy package files and install dependencies
 COPY package*.json ./
