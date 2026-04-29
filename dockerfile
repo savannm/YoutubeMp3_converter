@@ -13,9 +13,9 @@ RUN pip install "yt-dlp[default,curl-cffi]" --break-system-packages
 
 
 # Ensure the app can find yt-dlp
-ENV PATH="$PATH:/usr/local/bin"
+#ENV PATH="$PATH:/usr/local/bin"
 
-RUN pip install yt-dlp-get-oauth2
+#RUN pip install yt-dlp-get-oauth2
 
 
 # Create app directory
