@@ -23,6 +23,8 @@ app.get('/download', (req, res) => {
 
     // Update the spawn command to stream to stdout
     const process = spawn('yt-dlp', [
+           '--impersonate', 'chrome', // Mimics a Chrome browser
+    '--extractor-args', 'youtube:player_client=web_safari', // Spoofs Safari
         '-x',
         '--audio-format', 'mp3',
         '--audio-quality', '9',
