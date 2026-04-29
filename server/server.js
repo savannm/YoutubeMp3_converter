@@ -1,42 +1,37 @@
-const express = require('express');
-const { spawn } = require('child_process');
-const cors = require('cors');
-const path = require('path');
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-// Serve static files from the 'client' directory
-app.use(express.static(path.join(__dirname, '../client')));
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/index.html'));
-});
+const fs = require('fs'); // Import File System
 
 app.get('/download', (req, res) => {
     const videoURL = req.query.url;
     if (!videoURL) return res.status(400).send('URL is required');
 
-    // Set headers so the browser treats it as a file download
-    res.header('Content-Disposition', 'attachment; filename="audio.mp3"');
+    // Create a unique filename in the /tmp directory
+    const outputFilePath = path.join('/tmp', `audio-${Date.now()}.mp3`);
 
-    // Update the spawn command to stream to stdout
     const process = spawn('yt-dlp', [
         '-x',
         '--audio-format', 'mp3',
         '--audio-quality', '9',
-        '-o', 'path.join('/tmp', `${videoTitle}.mp3`)', // The '-' tells yt-dlp to output to stdout
+        '-o', outputFilePath, // Save to the /tmp path instead of stdout
         videoURL
     ]);
 
-    process.stdout.pipe(res);
+    process.on('close', (code) => {
+        if (code === 0) {
+            // Once the conversion is finished, send the file to the user
+            res.download(outputFilePath, 'audio.mp3', (err) => {
+                if (err) console.error("Download Error:", err);
+                
+                // CRITICAL: Delete the file after sending to keep /tmp clean
+                fs.unlink(outputFilePath, (err) => {
+                    if (err) console.error("Cleanup Error:", err);
+                });
+            });
+        } else {
+            res.status(500).send('Conversion failed');
+        }
+    });
 
     process.stderr.on('data', (data) => {
         console.log(`Debug: ${data}`);
     });
 });
-
-// Change line 40 in server/server.js
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
