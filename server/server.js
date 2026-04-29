@@ -27,7 +27,7 @@ app.get('/download', (req, res) => {
     '--extractor-args', 'youtube:player_client=web_safari', // Spoofs Safari
         '-x',
         '--audio-format', 'mp3',
-        '--audio-quality', '9',
+        '--audio-quality', '0',
         '-o', '-', // The '-' tells yt-dlp to output to stdout
         videoURL
     ]);
