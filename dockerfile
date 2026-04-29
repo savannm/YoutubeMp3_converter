@@ -1,4 +1,4 @@
-# Use Node.js base image
+I'm# Use Node.js base image
 FROM node:18
 
 # Install yt-dlp and ffmpeg
@@ -28,4 +28,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the server
-CMD [ "node", "server/server.js" ]
+CMD [ "node", "index.js" ]
