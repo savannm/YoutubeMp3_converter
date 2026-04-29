@@ -17,3 +17,13 @@ yt-dlp -x --audio-format mp3 --audio-quality 9 "youtube link"
 //if already have video file
 ffmpeg -i video.mp4 -vn -acodec libmp3lame -q:a 2 output.mp3
 >>>>>>> d42fa08 (update v1 youtube converter)
+
+
+Go to Railway.app:
+Click "New Project" -> "Deploy from GitHub repo".
+Select your YoutubeMp3_converter repo.
+Railway will see the Dockerfile and automatically install everything.
+Go to Render.com:
+Click "New" -> "Web Service".
+Connect your GitHub and select the repo.
+Under "Runtime", select Docker.
