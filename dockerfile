@@ -8,6 +8,10 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && pip3 install yt-dlp --break-system-packages
 
+# Install yt-dlp with the necessary impersonation dependencies
+RUN pip install "yt-dlp[default,curl-cffi]" --break-system-packages
+
+
 # Create app directory
 WORKDIR /app
 
