@@ -26,14 +26,7 @@ app.get('/download', (req, res) => {
     let filename = 'audio.mp3';
     try {
         const { execSync } = require('child_process');
-        const titleArgs = [
-            `"${videoURL}"`,
-            '--get-title',
-            '--no-warnings',
-            '--impersonate', 'chrome', // Mimic Chrome network fingerprint
-            '--extractor-args', 'youtube:player_client=ios',
-            '--no-check-certificates'
-        ];
+        const titleArgs = [`"${videoURL}"`, '--get-title', '--no-warnings'];
         if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', `"${cookiesPath}"`);
 
         const title = execSync(`yt-dlp ${titleArgs.join(' ')}`).toString().trim();
@@ -53,13 +46,11 @@ app.get('/download', (req, res) => {
     const ytDlpArgs = [
         '--quiet',
         '--no-warnings',
-        '--impersonate', 'chrome',
-        '--extractor-args', 'youtube:player_client=ios',
-        '--no-check-certificates',
         '-f', 'bestaudio',
         '-o', '-',
         videoURL
     ];
+    addStealthFlags(ytDlpArgs);
 
     if (fs.existsSync(cookiesPath)) {
         ytDlpArgs.unshift('--cookies', cookiesPath);
