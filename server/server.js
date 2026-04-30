@@ -50,7 +50,6 @@ app.get('/download', (req, res) => {
         '-o', '-',
         videoURL
     ];
-    addStealthFlags(ytDlpArgs);
 
     if (fs.existsSync(cookiesPath)) {
         ytDlpArgs.unshift('--cookies', cookiesPath);
