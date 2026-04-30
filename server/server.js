@@ -21,32 +21,21 @@ app.get('/download', (req, res) => {
 
     const cookiesPath = path.join(__dirname, '../cookies.txt');
 
-    // Helper to add stealth flags safely
-    const addStealthFlags = (argsArray) => {
-        // Use the 'TV' client which often has much lower security
-        argsArray.push('--extractor-args', 'youtube:player_client=tv');
-        argsArray.push('--no-check-certificates');
-        argsArray.push('--no-warnings');
-        argsArray.push('--user-agent', 'Mozilla/5.0 (SMART-TV; LINUX; Tizen 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.106.1.10.1 Safari/537.36');
-    };
-
+    // converts audio with title of youtube.
     // 1. Fetch the video title first
     let filename = 'audio.mp3';
     try {
-        const { spawnSync } = require('child_process');
-        const titleArgs = ['--get-title', '--no-warnings', videoURL];
-        if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', cookiesPath);
-        addStealthFlags(titleArgs);
+        const { execSync } = require('child_process');
+        const titleArgs = [`"${videoURL}"`, '--get-title', '--no-warnings'];
+        if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', `"${cookiesPath}"`);
 
-        const result = spawnSync('yt-dlp', titleArgs);
-        const title = result.stdout.toString().trim();
-
+        const title = execSync(`yt-dlp ${titleArgs.join(' ')}`).toString().trim();
         if (title) {
+            // Sanitize filename: remove characters that aren't allowed in filenames
             filename = `${title.replace(/[/\\?%*:|"<>]/g, '_')}.mp3`;
-            console.log('Downloading:', title);
         }
     } catch (err) {
-        console.log('Error fetching title:', err.message);
+        console.log('Error fetching title, using default:', err.message);
     }
 
     // Set headers with the dynamic filename
@@ -85,24 +74,9 @@ app.get('/download', (req, res) => {
     ytDlp.stdout.pipe(ffmpeg.stdin);
     ffmpeg.stdout.pipe(res);
 
-    // Error handling with logging
-    ytDlp.stderr.on('data', (data) => {
-        const msg = data.toString();
-        console.error(`yt-dlp ERROR: ${msg}`);
-        if (msg.includes('Sign in to confirm')) {
-            console.error('CRITICAL: YouTube is still blocking Render IP.');
-        }
-    });
-
-    ffmpeg.stderr.on('data', (data) => {
-        if (!data.toString().includes('frame=')) { // Ignore progress logs
-            console.log(`ffmpeg info: ${data}`);
-        }
-    });
-
-    ytDlp.on('close', (code) => {
-        if (code !== 0) console.log(`yt-dlp process exited with code ${code}`);
-    });
+    // Error handling
+    ytDlp.stderr.on('data', (data) => console.log(`yt-dlp error: ${data}`));
+    ffmpeg.stderr.on('data', (data) => console.log(`ffmpeg error: ${data}`));
 
     // Ensure processes are killed when request is finished
     res.on('close', () => {
@@ -111,6 +85,6 @@ app.get('/download', (req, res) => {
     });
 });
 
-
+// Change line 40 in server/server.js
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
