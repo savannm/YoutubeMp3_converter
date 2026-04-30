@@ -23,9 +23,12 @@ app.get('/download', (req, res) => {
 
     // Helper to add stealth flags safely
     const addStealthFlags = (argsArray) => {
-        argsArray.push('--extractor-args', 'youtube:player_client=android,web');
+        // Use the 'Android Embedded' client which is often less restricted
+        argsArray.push('--extractor-args', 'youtube:player_client=android_embedded,web');
         argsArray.push('--no-check-certificates');
-        argsArray.push('--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        argsArray.push('--no-warnings');
+        argsArray.push('--prefer-insecure'); // Sometimes helps on data center networks
+        argsArray.push('--user-agent', 'com.google.android.youtube/19.14.36 (Linux; U; Android 14; en_US) gzip');
     };
 
     // 1. Fetch the video title first
@@ -35,10 +38,10 @@ app.get('/download', (req, res) => {
         const titleArgs = ['--get-title', '--no-warnings', videoURL];
         if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', cookiesPath);
         addStealthFlags(titleArgs);
-        
+
         const result = spawnSync('yt-dlp', titleArgs);
         const title = result.stdout.toString().trim();
-        
+
         if (title) {
             filename = `${title.replace(/[/\\?%*:|"<>]/g, '_')}.mp3`;
             console.log('Downloading:', title);
@@ -83,9 +86,24 @@ app.get('/download', (req, res) => {
     ytDlp.stdout.pipe(ffmpeg.stdin);
     ffmpeg.stdout.pipe(res);
 
-    // Error handling
-    ytDlp.stderr.on('data', (data) => console.log(`yt-dlp error: ${data}`));
-    ffmpeg.stderr.on('data', (data) => console.log(`ffmpeg error: ${data}`));
+    // Error handling with logging
+    ytDlp.stderr.on('data', (data) => {
+        const msg = data.toString();
+        console.error(`yt-dlp ERROR: ${msg}`);
+        if (msg.includes('Sign in to confirm')) {
+            console.error('CRITICAL: YouTube is still blocking Render IP.');
+        }
+    });
+
+    ffmpeg.stderr.on('data', (data) => {
+        if (!data.toString().includes('frame=')) { // Ignore progress logs
+            console.log(`ffmpeg info: ${data}`);
+        }
+    });
+
+    ytDlp.on('close', (code) => {
+        if (code !== 0) console.log(`yt-dlp process exited with code ${code}`);
+    });
 
     // Ensure processes are killed when request is finished
     res.on('close', () => {
