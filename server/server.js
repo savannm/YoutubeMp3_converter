@@ -26,7 +26,13 @@ app.get('/download', (req, res) => {
     let filename = 'audio.mp3';
     try {
         const { execSync } = require('child_process');
-        const titleArgs = [`"${videoURL}"`, '--get-title', '--no-warnings'];
+        const titleArgs = [
+            `"${videoURL}"`, 
+            '--get-title', 
+            '--no-warnings',
+            '--impersonate', 'chrome', // Mimic Chrome network fingerprint
+            '--extractor-args', 'youtube:player_client=web_safari' // Use Safari client to bypass bot checks
+        ];
         if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', `"${cookiesPath}"`);
 
         const title = execSync(`yt-dlp ${titleArgs.join(' ')}`).toString().trim();
@@ -46,8 +52,10 @@ app.get('/download', (req, res) => {
     const ytDlpArgs = [
         '--quiet',
         '--no-warnings',
-        '-f', 'bestaudio',
-        '-o', '-',
+        '--impersonate', 'chrome',
+        '--extractor-args', 'youtube:player_client=web_safari',
+        '-f', 'bestaudio', 
+        '-o', '-', 
         videoURL
     ];
 
