@@ -15,7 +15,7 @@ RUN pip install "yt-dlp[default,curl-cffi]" --break-system-packages
 ENV PATH="$PATH:/usr/local/bin"
 
 #--break-system-packages. python installs correctly on render.com
-RUN pip install yt-dlp-get-oauth2 --break-system-packages
+# RUN pip install yt-dlp-get-oauth2 --break-system-packages
 
 
 # Create app directory
