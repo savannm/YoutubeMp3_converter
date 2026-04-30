@@ -21,21 +21,28 @@ app.get('/download', (req, res) => {
 
     const cookiesPath = path.join(__dirname, '../cookies.txt');
 
-    // converts audio with title of youtube.
+    // Helper to add stealth flags safely
+    const addStealthFlags = (argsArray) => {
+        argsArray.push('--extractor-args', 'youtube:player_client=android,web');
+        argsArray.push('--no-check-certificates');
+        argsArray.push('--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    };
+
     // 1. Fetch the video title first
     let filename = 'audio.mp3';
     try {
         const { execSync } = require('child_process');
         const titleArgs = [`"${videoURL}"`, '--get-title', '--no-warnings'];
         if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', `"${cookiesPath}"`);
-
+        addStealthFlags(titleArgs);
+        
         const title = execSync(`yt-dlp ${titleArgs.join(' ')}`).toString().trim();
         if (title) {
             // Sanitize filename: remove characters that aren't allowed in filenames
             filename = `${title.replace(/[/\\?%*:|"<>]/g, '_')}.mp3`;
         }
     } catch (err) {
-        console.log('Error fetching title, using default:', err.message);
+        console.log('Error fetching title:', err.message);
     }
 
     // Set headers with the dynamic filename
