@@ -19,33 +19,68 @@ app.get('/download', (req, res) => {
     const videoURL = req.query.url;
     if (!videoURL) return res.status(400).send('URL is required');
 
-    // Set headers so the browser treats it as a file download
-    res.header('Content-Disposition', 'attachment; filename="audio.mp3"');
-
-    // Update the spawn command to stream to stdout
     const cookiesPath = path.join(__dirname, '../cookies.txt');
-    const args = [
-        // '--impersonate', 'chrome',
-        // '--extractor-args', 'youtube:player_client=web_safari',
-        '-x',
-        '--audio-format', 'mp3',
-        '--audio-quality', '9',
+
+    // converts audio with title of youtube.
+    // 1. Fetch the video title first
+    let filename = 'audio.mp3';
+    try {
+        const { execSync } = require('child_process');
+        const titleArgs = [`"${videoURL}"`, '--get-title', '--no-warnings'];
+        if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', `"${cookiesPath}"`);
+
+        const title = execSync(`yt-dlp ${titleArgs.join(' ')}`).toString().trim();
+        if (title) {
+            // Sanitize filename: remove characters that aren't allowed in filenames
+            filename = `${title.replace(/[/\\?%*:|"<>]/g, '_')}.mp3`;
+        }
+    } catch (err) {
+        console.log('Error fetching title, using default:', err.message);
+    }
+
+    // Set headers with the dynamic filename
+    res.header('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', 'audio/mpeg');
+
+    // yt-dlp: Get the best audio and pipe it to ffmpeg
+    const ytDlpArgs = [
+        '--quiet',
+        '--no-warnings',
+        '-f', 'bestaudio',
         '-o', '-',
         videoURL
     ];
 
-    // Automatically use cookies if the file exists
     if (fs.existsSync(cookiesPath)) {
-        args.unshift('--cookies', cookiesPath);
+        ytDlpArgs.unshift('--cookies', cookiesPath);
         console.log('Using cookies.txt for authentication');
     }
 
-    const process = spawn('yt-dlp', args);
+    // Start yt-dlp
+    const ytDlp = spawn('yt-dlp', ytDlpArgs);
 
-    process.stdout.pipe(res);
+    // Start ffmpeg: Take input from pipe:0 (yt-dlp) and send mp3 to pipe:1 (browser)
+    const ffmpeg = spawn('ffmpeg', [
+        '-i', 'pipe:0',
+        '-f', 'mp3',
+        '-acodec', 'libmp3lame',
+        '-ab', '128k',
+        '-ar', '44100',
+        'pipe:1'
+    ]);
 
-    process.stderr.on('data', (data) => {
-        console.log(`Debug: ${data}`);
+    // Connect the pipes
+    ytDlp.stdout.pipe(ffmpeg.stdin);
+    ffmpeg.stdout.pipe(res);
+
+    // Error handling
+    ytDlp.stderr.on('data', (data) => console.log(`yt-dlp error: ${data}`));
+    ffmpeg.stderr.on('data', (data) => console.log(`ffmpeg error: ${data}`));
+
+    // Ensure processes are killed when request is finished
+    res.on('close', () => {
+        ytDlp.kill();
+        ffmpeg.kill();
     });
 });
 
