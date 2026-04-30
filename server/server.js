@@ -31,7 +31,8 @@ app.get('/download', (req, res) => {
             '--get-title',
             '--no-warnings',
             '--impersonate', 'chrome', // Mimic Chrome network fingerprint
-            '--extractor-args', 'youtube:player_client=web_safari' // Use Safari client to bypass bot checks
+            '--extractor-args', 'youtube:player_client=ios',
+            '--no-check-certificates'
         ];
         if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', `"${cookiesPath}"`);
 
@@ -53,7 +54,8 @@ app.get('/download', (req, res) => {
         '--quiet',
         '--no-warnings',
         '--impersonate', 'chrome',
-        '--extractor-args', 'youtube:player_client=web_safari',
+        '--extractor-args', 'youtube:player_client=ios',
+        '--no-check-certificates',
         '-f', 'bestaudio',
         '-o', '-',
         videoURL
