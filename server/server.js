@@ -31,15 +31,17 @@ app.get('/download', (req, res) => {
     // 1. Fetch the video title first
     let filename = 'audio.mp3';
     try {
-        const { execSync } = require('child_process');
-        const titleArgs = [`"${videoURL}"`, '--get-title', '--no-warnings'];
-        if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', `"${cookiesPath}"`);
+        const { spawnSync } = require('child_process');
+        const titleArgs = ['--get-title', '--no-warnings', videoURL];
+        if (fs.existsSync(cookiesPath)) titleArgs.unshift('--cookies', cookiesPath);
         addStealthFlags(titleArgs);
         
-        const title = execSync(`yt-dlp ${titleArgs.join(' ')}`).toString().trim();
+        const result = spawnSync('yt-dlp', titleArgs);
+        const title = result.stdout.toString().trim();
+        
         if (title) {
-            // Sanitize filename: remove characters that aren't allowed in filenames
             filename = `${title.replace(/[/\\?%*:|"<>]/g, '_')}.mp3`;
+            console.log('Downloading:', title);
         }
     } catch (err) {
         console.log('Error fetching title:', err.message);
