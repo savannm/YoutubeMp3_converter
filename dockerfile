@@ -14,7 +14,7 @@ RUN pip install "yt-dlp[default,curl-cffi]" --break-system-packages
 # Ensure the app can find yt-dlp
 ENV PATH="$PATH:/usr/local/bin"
 
-#This is no longer working.  --break-system-packages. python installs correctly on render.com
+#--break-system-packages. python installs correctly on render.com
 # RUN pip install yt-dlp-get-oauth2 --break-system-packages
 
 
@@ -33,3 +33,5 @@ EXPOSE 3000
 
 # Start the server
 CMD [ "node", "server/server.js" ]
+
+
