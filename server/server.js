@@ -2,6 +2,7 @@ const express = require('express');
 const { spawn } = require('child_process');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const app = express();
 
 app.use(cors());
@@ -22,15 +23,24 @@ app.get('/download', (req, res) => {
     res.header('Content-Disposition', 'attachment; filename="audio.mp3"');
 
     // Update the spawn command to stream to stdout
-    const process = spawn('yt-dlp', [
-           '--impersonate', 'chrome', // Mimics a Chrome browser
-    '--extractor-args', 'youtube:player_client=web_safari', // Spoofs Safari
+    const cookiesPath = path.join(__dirname, '../cookies.txt');
+    const args = [
+        // '--impersonate', 'chrome',
+        // '--extractor-args', 'youtube:player_client=web_safari',
         '-x',
         '--audio-format', 'mp3',
-        '--audio-quality', '0',
-        '-o', '-', // The '-' tells yt-dlp to output to stdout
+        '--audio-quality', '9',
+        '-o', '-',
         videoURL
-    ]);
+    ];
+
+    // Automatically use cookies if the file exists
+    if (fs.existsSync(cookiesPath)) {
+        args.unshift('--cookies', cookiesPath);
+        console.log('Using cookies.txt for authentication');
+    }
+
+    const process = spawn('yt-dlp', args);
 
     process.stdout.pipe(res);
 

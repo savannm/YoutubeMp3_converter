@@ -1,6 +1,13 @@
-<<<<<<< HEAD
+
 # YoutubeMp3_converter
 =======
+Quickstart
+
+Add auth. creates cookies.txt for use in railway or render. in terminal: 
+yt-dlp --cookies-from-browser chrome --cookies cookies.txt --skip-download "https://youtu.be/pnjo3UUa30E?si=05NKZ7v4vPuji-Pc"
+
+OR
+yt-dlp --cookies "https://www.youtube.com/watch?v=UaRrDZWhtWA&list=RDUaRrDZWhtWA&start_radio=1"
 
 
 //this extraction app requires yt-dlp  and FFMPEG
