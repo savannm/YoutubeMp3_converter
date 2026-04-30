@@ -11,9 +11,8 @@ RUN apt-get update && apt-get install -y \
 # Install yt-dlp with the necessary impersonation dependencies
 RUN pip install "yt-dlp[default,curl-cffi]" --break-system-packages
 
-
 # Ensure the app can find yt-dlp
-#ENV PATH="$PATH:/usr/local/bin"
+ENV PATH="$PATH:/usr/local/bin"
 
 RUN pip install yt-dlp-get-oauth2
 
