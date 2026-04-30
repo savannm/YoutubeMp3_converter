@@ -23,12 +23,11 @@ app.get('/download', (req, res) => {
 
     // Helper to add stealth flags safely
     const addStealthFlags = (argsArray) => {
-        // Use the 'Android Embedded' client which is often less restricted
-        argsArray.push('--extractor-args', 'youtube:player_client=android_embedded,web');
+        // Use the 'TV' client which often has much lower security
+        argsArray.push('--extractor-args', 'youtube:player_client=tv');
         argsArray.push('--no-check-certificates');
         argsArray.push('--no-warnings');
-        argsArray.push('--prefer-insecure'); // Sometimes helps on data center networks
-        argsArray.push('--user-agent', 'com.google.android.youtube/19.14.36 (Linux; U; Android 14; en_US) gzip');
+        argsArray.push('--user-agent', 'Mozilla/5.0 (SMART-TV; LINUX; Tizen 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.106.1.10.1 Safari/537.36');
     };
 
     // 1. Fetch the video title first
