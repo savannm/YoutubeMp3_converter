@@ -27,8 +27,8 @@ app.get('/download', (req, res) => {
     try {
         const { execSync } = require('child_process');
         const titleArgs = [
-            `"${videoURL}"`, 
-            '--get-title', 
+            `"${videoURL}"`,
+            '--get-title',
             '--no-warnings',
             '--impersonate', 'chrome', // Mimic Chrome network fingerprint
             '--extractor-args', 'youtube:player_client=web_safari' // Use Safari client to bypass bot checks
@@ -54,8 +54,8 @@ app.get('/download', (req, res) => {
         '--no-warnings',
         '--impersonate', 'chrome',
         '--extractor-args', 'youtube:player_client=web_safari',
-        '-f', 'bestaudio', 
-        '-o', '-', 
+        '-f', 'bestaudio',
+        '-o', '-',
         videoURL
     ];
 
