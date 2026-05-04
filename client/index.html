@@ -199,25 +199,34 @@
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
     </div>
-
-    <div class="card">
-        <h1>Personal Youtube to MP3 Converter</h1>
-        <p>Premium YouTube to MP3 Conversion</p>
-
-        <div class="input-group">
-            <input type="text" id="urlInput" placeholder="Paste YouTube link here..." autocomplete="off">
+    <div
+        style="display: flex; flex:1; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
+        <div class="card" style="background: #000;position: relative;padding: 20px; border-radius: 12px;">
+            <h3>project details</h3>
+            <ul style="text-align: left;">
+                <li>yt-dlp API</li>
+                <li>ffmpeg for mp3 conversion.</li>
+                <li>railway container - docker for easy deployment. Workers, WebSockets, EventStreams, persistent
+                    connections, and long-running processes just work</li>
+            </ul>
         </div>
+        <div class="card">
+            <h1>Personal Youtube to MP3 Converter</h1>
+            <p>for personal use only</p>
+            <div class="input-group">
+                <input type="text" id="urlInput" placeholder="Paste YouTube link here..." autocomplete="off">
+            </div>
 
-        <button id="convertBtn" onclick="downloadAudio()">
-            <span id="btnText">Convert & Download</span>
-        </button>
+            <button id="convertBtn" onclick="downloadAudio()">
+                <span id="btnText">Convert & Download</span>
+            </button>
 
-        <div id="status">
-            <span class="loading-spinner" id="spinner"></span>
-            <span id="statusText">Ready to convert</span>
+            <div id="status">
+                <span class="loading-spinner" id="spinner"></span>
+                <span id="statusText">Ready to convert</span>
+            </div>
         </div>
     </div>
-
     <script>
         function downloadAudio() {
             const url = document.getElementById('urlInput').value;
